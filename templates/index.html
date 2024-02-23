@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <style>
+        /* Estilos para el popup modal */
+        .modal {
+            display: none;
+            /* Por defecto oculto */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Estilos para el contenido del popup */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 22%;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            /* Transparencia para que el fondo sea visible */
+            z-index: 9999;
+            /* Asegúrate de que esté por encima de todos los demás elementos */
+            display: none;
+            /* Por defecto oculto */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Upload a PDF File</h1>
+    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data"
+        onsubmit="showProcessingModal()">
+        <input type="file" id="file-input" name="file" accept="application/pdf" onchange="checkFile()">
+        <br>
+        Additional Field 1: <input type="text" id="additionalData1" name="additionalData1" required
+            oninput="checkFile()">
+        <br>
+        Additional Field 2: <input type="text" id="additionalData2" name="additionalData2" required
+            oninput="checkFile()">
+        <br>
+        <input type="submit" id="upload-btn" value="Upload" disabled>
+    </form>
+    <div id="processing-modal" class="modal">
+        <div class="modal-content">
+            <p>Procesando...</p>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div> <!-- Nuevo div para cubrir la pantalla -->
+    {% if message %}
+    <script>
+        alert("{{ message }}");
+    </script>
+    {% endif %}
+    <script>
+        // Función para mostrar el popup modal de procesamiento
+        function showProcessingModal() {
+            document.getElementById("processing-modal").style.display = "block";
+            document.getElementById("overlay").style.display = "block"; // Mostrar el overlay
+
+            // Agregar un evento de escucha de teclado para bloquear la tecla "Escape"
+            window.addEventListener('keydown', blockEscapeKey);
+        }
+
+
+        // Función para ocultar el modal de procesamiento
+        function hideProcessingModal() {
+            document.getElementById("processing-modal").style.display = "none";
+            document.getElementById("overlay").style.display = "none"; // Ocultar el overlay
+
+            // Remover el evento de escucha de teclado para la tecla "Escape"
+            window.removeEventListener('keydown', blockEscapeKey);
+        }
+
+        // Función para bloquear la tecla "Escape"
+        function blockEscapeKey(event) {
+            if (event.key === "Escape") {
+                event.preventDefault(); // Evitar la acción predeterminada de la tecla "Escape"
+            }
+        }
+
+        // Verificar si hay un mensaje en la URL y mostrarlo en un popup de alerta
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message');
+        if (message) {
+            alert(message);
+            // Eliminar el parámetro de consulta de la URL
+            history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        function checkFile() {
+            var fileInput = document.getElementById("file-input");
+            var additionalField1 = document.getElementById("additionalData1");
+            var additionalField2 = document.getElementById("additionalData2");
+            var uploadBtn = document.getElementById("upload-btn");
+
+            if (fileInput.files.length > 0 && additionalField1.value.trim() !== '' && additionalField2.value.trim() !== '') {
+                uploadBtn.disabled = false;
+            } else {
+                uploadBtn.disabled = true;
+            }
+        }
+    </script>
+</body>
+
+
+</html>
